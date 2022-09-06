@@ -1,0 +1,102 @@
+NumPy Arrays
+	•	import numpy as np
+
+	•	np.random.seed(n) 
+	—> returns same number(s) each time as designated by number: n
+		ex) np.random.seed(101)
+			np.random.randint(0,100,10) 	
+			array([95, 11, 81, 70, 63, 87, 75,  9, 77, 40])
+
+	•	np.arange([start, ]stop, [step, ]dtype=None, *, like=None) 
+	—> returns array of evenly spaced numbers with option for steps
+		ex) np.arange(10,100,10)
+			array([ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+
+	•	np.zeros(shape, dtype, order, like) 
+	  —> returns array of zeros, dtype default = float
+		  ex) np.zeros((5,5))
+		array([[0., 0., 0., 0., 0.],
+       		[0., 0., 0., 0., 0.],
+       		[0., 0., 0., 0., 0.],
+       		[0., 0., 0., 0., 0.],
+       		[0., 0., 0., 0., 0.]])
+
+	•	np.ones(shape, dtype, order, like) 
+	  —> returns array of ones, dtype default = float
+
+	•	.max()/.min()
+	  —> returns min/max value of an array
+
+	•	argmax()/.argmin()
+	  —> returns index of max/min value of an array
+
+	•	.shape
+	  —> returns a tuple with rows and columns of array
+
+	•	.reshape(rows, columns) 
+	  —> reshape array into specific number of rows/columns 
+		ex) np.arange(0,100,10).reshape(2,5)
+			array([[ 0, 10, 20, 30, 40],
+       		  	   [50, 60, 70, 80, 90]])
+
+	•	my_array[n,n]
+	—> pulls specific value from array at row(n),column(n)
+
+	•	my_array[n:n,n]
+	—> pull an entire row or column from the array
+	ex) my_array[:,1] —> pull every value at column position 1
+	ex) my_array[1,:] —> pull every value at row position 1
+	ex) my_array[0:3, 0:3] —> pull a 3x3 array from the array
+
+	•	my_array[n:n, n:n] = n
+	—> reassign a new number(n) to a matrix within the matrix!
+	ex) my_array[0:3, 0:3] = 0 —> all zeros in the upper left corner
+
+	•	.copy() 
+	—> copy array/matrix to a new variable and then fuck wit it
+
+Images!
+
+	•	image data is represented as an array
+	•	the pixel is stored as a value between 0 and 255
+	⁃	0 = black, no value
+	⁃	255 = full color
+	•	we can divide 1/0 by 255 to normalize those values within that range 
+	•	an image has 3 dimensions so…
+	⁃	your_image.shape —> (1280,720,3)
+	⁃	1280 = pixel width
+	⁃	720 = pixel height
+	⁃	3 = color channels (R,G,B)
+
+Images and NumPy
+
+	•	import matplotlib.pyplot as plt
+	⁃	library that allows images to be plotted and displayed in notebook
+
+	•	from PIL import Image
+	⁃	image func that allows images to be opened
+
+	•	pic = Image.open(“filepath”)
+
+	•	np.asarray( )
+	—> converts to an array so it can be plotted!
+	ex) pic_arr = np.asarray(pic)
+
+	•	plt.imshow(pic_arr)
+	—> plots image on graph
+
+	•	pic_arr[:,:,n]
+	—> n is 0, 1, or 2 and that correlates to R, G, B
+	—>to isolate a single array from matrix…
+	ex) pic_red = pic_arr.copy()
+		pic_red[:,:,1]=0 —>turns all values in ‘GREEN’ array to black
+		pic_red[:,:,2]=0 —>turns all values in ‘BLUE’ array to black
+		plt.imshow(pic_red) —> this will show image as red!
+		
+
+
+
+
+
+
+
