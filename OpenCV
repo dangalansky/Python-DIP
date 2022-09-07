@@ -1,0 +1,221 @@
+Open Source Computer Vision
+	*uses computer to analyze images and video, similar to how a human does
+	* originally written in C++
+
+	•	import cv2
+
+	•	cv2.imread(‘filepath’)
+	—> open file
+
+	•	cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+	—> necessary conversion for cv2
+	—> reads photos in B, G, R
+
+	•	cv2.imread(“filepath”,cv2.IMREAD_GRAYSCALE)
+	—> convert color to grayscale, abandons addtl arrays
+
+	•	cv2.resize(fix_img,(1000,400))
+	—> * reverse order: w/h instead of h/w
+	—> must be saved in variable!
+
+	•	cv2.resize(fix_img,(0,0),fix_img,0.5,0.5)
+	—> ratio-based resize! 
+
+	•	cv2.flip(fix_img,n)
+	—> 0 = hor; 1 = vert; -1 = h & v
+
+	•	cv2.imwrite(‘name_of_file.jpg’,file)
+	—> save file to working directory
+
+	•	resize canvas inside notebookd
+		fig = plt.figure(figsize=(10,8))
+		ax = fig.add_subplot(111)
+		ax.imshow(fix_img)
+
+
+Displaying Images In Seperate Window
+
+import cv2
+
+img = cv2.imread('DATA/00-puppy.jpg')
+
+while True:
+    # cv2's own imshow, arg 1 is what you want the window to be called, NO SPACES
+    cv2.imshow('Puppy', img)
+    
+    # IF we've waited at least 1ms AND we've pressed the Esc key
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+
+cv2.destroyAllWindows()
+
+
+Drawing Shapes/Text with OpenCV
+
+	•	np.zeros(shape=(512,512,3),dtype=np.int16)
+	—> blank image, save in variable: blank_img
+	* int16 = integer 16 bit; could be 32 also
+
+	•	cv2.rectangle(blank_img,pt1=(384,0),pt2=(500,150),color=(0,255,0),thickness=10)
+	—>  pt1 & pt2 = upper left and bottom right corner
+	—> square: pt1=(200,200),pt2=(300,300)
+
+	•	cv2.circle(blank_img,center=(256,256),radius=(200),color=(0,0,255),thickness=-1)
+	—> if thickness = -1; filled in shape!
+
+	•	cv2.line(blank_img,pt1=(100,500),pt2=(400,100),color=(255,0,0),thickness=10)
+
+	•	cv2.polylines(blank_img,[pts],isClosed=True,color=(255,0,0),thickness=5)
+	—> * position array must be passed as list
+	—> polygons start with vertices: 
+		vertices = np.array ([ [100,300], [200,200], [400,300], [200,400] ],dtype=np.int32)
+	—> # currently wrong format, CV requires 3D so…
+		pts = vertices.reshape((-1,1,2))
+
+	•	cv2.putText(blank_img,text=“text”,org=(50,400),fontFace=font,
+		fontScale=4,color=(255,255,255), thickness=3,lineType=cv2.LINE_AA)
+	—> font = cv2.FONT_HERSHEY_SIMPLEX	
+			  —> lineType: stick with cv2.LINE_AA
+
+
+Using Mouse with OpenCV
+
+	•	event during mouse click:
+
+import cv2
+import numpy as np
+
+#### FUNCTION ####
+
+
+def draw_circle(event,x,y,flags,param):
+    
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(img,(x,y),100,(0,255,0),-1)
+        
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        cv2.circle(img,(x,y),100,(255,0,0),-1)
+
+cv2.namedWindow(winname='My_Drawing!')
+
+cv2.setMouseCallback('My_Drawing!',draw_circle)
+
+
+
+## SHOWING IMAGE WITH OPENCV ##
+
+
+img = np.zeros((512,512,3), dtype=np.int8)
+
+while True:
+    
+    cv2.imshow("My_Drawing!", img)
+    
+    if cv2.waitKey(20) & 0xFF == 27:
+        break
+
+cv2.destroyAllWindows()
+
+
+•	event during mouse drag:
+
+* same as above, but different function logic and global variables!
+
+# VARIABLES
+
+# true while mouse button down, false when mouse button up 
+
+drawing = False
+
+ix,iy = -1,-1
+
+# FUNCTION
+
+def draw_rectangle(event,x,y,flags,params):
+    
+    global ix,iy,drawing
+    
+    if event == cv2.EVENT_LBUTTONDOWN:
+        drawing = True
+        ix,iy = x,y
+    
+    elif event == cv2.EVENT_MOUSEMOVE:
+        if drawing == True:
+            cv2.rectangle(img,(ix,iy),(x,y),color=(0,255,0),thickness=-1)
+    
+    elif event == cv2.EVENT_LBUTTONUP:
+        drawing = False
+        cv2.rectangle(img,(ix,iy),(x,y),color=(255,0,0),thickness=-1)
+
+
+Image Processing
+
+	•	HSL - hue, saturation, lightness
+	⁃	hue- color
+	⁃	saturation- how much color
+	⁃	lightness - how dark/how light
+
+	•	HSV - hue, saturation, value
+	⁃	hue- color
+	⁃	saturation- how close we are to white vs. how saturated we are in specific color
+
+Blending Images
+
+	•	ROI - region of interest
+	⁃	where you intend to add an smaller image to a larger image
+
+		2 same size images:
+
+	•	cv2.addWeighted(src1=img1, alpha=n, src2 = img2, beta=n, gamma=n)	
+
+	2 different size images (creating a mask!)
+
+	1.	Size of 2 images
+	⁃	lg_img.shape =  (1401, 934, 3) 
+	⁃	sm_img.shape = (600, 600, 3)
+	⁃	rows,cols,channels = sm_img.shape
+	2.	Define an ROI same size as the smaller image
+	⁃	assuming we want image at lower right:
+	⁃	x_offset = 934 - cols
+	⁃	y_offset = 1401 - rows
+	⁃	roi = lg_img[y_offset:1401, x_offset:934]
+	3.	Create a mask
+	⁃	convert to grayscale
+	⁃	img2gray = cv2.cvtColor(sm_img,cv2.COLOR_RGB2GRAY)
+	⁃	img2gray.shape —> (600,600)
+	⁃	channels color is removed!
+	⁃	see it: plt.imshow(img2gray, cmap=‘gray’)
+	⁃	create inverse image
+	⁃	with masks: white stays, black is removed!
+	⁃	mask_inv = cv2.bitwise_not(img2gray)
+	⁃	see it: plt.imshow(mask_inv cmap=‘gray’)
+	⁃	convert mask to have 3 channels
+	⁃	white_background = np.full(sm_img.shape, 255, dtype=np.uint8)
+	⁃	mask_3chan = cv2.bitwise_or(white_background, white_background, mask = mask_inv)
+	⁃	place original sm_img on top of 3 chan mask
+	⁃	fg = cv2.bitwise_or(sm_img, sm_img, mask=mask_inv) 
+	⁃	place sm_img on top of original ROI
+	⁃	final_roi = cv2.bitwise_or(roi,fg)
+	⁃	sm_img = final_roi
+	⁃	place final ROI on top of lg_img using overlay technique
+	⁃	lg_img[y_offset: y_offset+sm_img.shape[0], x_offset: x_offset+sm_img.shape[1]] = sm_img  
+
+
+
+Overlaying Images
+
+		2 different size images
+		
+	1.	 define your offsets, x and y are reversed in openCV
+	⁃	assuming you want to come in from the top left corner
+	⁃	x_offset = 0
+	⁃	y_offset = 0
+		
+	2.	sm_image.shape —> size in tuple
+	⁃	ex) (600, 600, 3)
+	⁃	so sm_image[0] = y coordinate image will stretch to
+		
+	3.	using slicing, we are grabbing a chunk of the lg_img and replacing it with sm_img
+	⁃	lg_img[y_offset : y_offset + small_img[0], x_offset : x_offset + small_img[1]] = sm_img
+
