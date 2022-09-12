@@ -229,6 +229,8 @@ Thresholding
 	-either 0 or 255
 *thresholding coverts an image to b/w; segmenting it into different parts
 
+	•	img = cv2.imread(‘filepath’, 0)
+	⁃	0 converts to B/W
 
 	•	ret,thresh1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
 	⁃	3 params after image
@@ -329,4 +331,67 @@ Laplacian —> x and y
 	⁃	for x and y
 
 	•	blended = cv2.addWeighted(src1=sobelx,alpha=0.5,src2=sobely,beta=0.5,gamma=0)
+	⁃	edge detection!
 	⁃	another wonderful way to receive x and y gradients!
+
+Histograms
+* originally: visual representation of the distribution of a continuous feature
+* for images: frequency of values for colors
+	- each of the 3 RGB channels has values between 0 and 255
+
+
+	•	cv2.calcHist([img], channels=[n], mask=None, histSize=[256], range=[0,256])
+	•	plt.plot(histogram)
+	⁃	to view
+
+	for RGB overlayed Histogram:
+—> keep in BGR for histograms; create a converted copy for visualization!
+
+	color = ('b', 'g', 'r')
+	for i,col in enumerate(color):
+    		histo = cv2.calcHist([img],[i],None,[256],[0,256])
+    		plt.plot(histo, color=col)
+    		plt.xlim([0,256])
+		plt.title('Histogram for Image')
+
+	for large images with lots of black:
+		-consider how many pixels are involved
+			ex) if img.shape —> (1800, 2700, 3) == 1800*2700*3 == 14,580,000 pixels!
+		-play with x limit and y limit!
+
+	for: Histogram of ROI
+
+1) create mask from dimensions of image; only b/w
+	- if img.shape = (550, 550, 3)
+	- img.shape[:2] = (550, 550)
+
+2) mask = np.zeros(img.shape[:2], np.uint8)
+
+3) use white to create ROI within mask
+	ex) mask[300:400, 100:400] = 255
+
+4) apply mask to original image
+	-masked_img = cv2.bitwise_and(img, img, mask=mask)
+
+5) use calcHist but with created mask
+	-histogram_image = cv2.calcHist([img],[1],mask=mask,[256],[0,256])
+
+	Histogram Equalization 
+		* method of contrast adjustment based on image’s histogram
+			-reduces color depth (shades of gray)
+			-min and max values get shifted to 0 and 255
+
+if: B/W
+
+	•	cv2.equalizeHist(img)
+
+if: Color
+
+	1)	convert to HSV!
+	⁃	cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+	2)	0 = hue, 1= saturation, 2 = values
+	⁃	hsv[:,:,2] = cv2.equalizeHist(hsv[:,:,2])
+
+	3)	for visual display: convert to RGB
+	⁃	rgb_equalized = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
