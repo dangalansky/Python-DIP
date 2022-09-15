@@ -376,6 +376,7 @@ Histograms
 5) use calcHist but with created mask
 	-histogram_image = cv2.calcHist([img],[1],mask=mask,[256],[0,256])
 
+
 	Histogram Equalization 
 		* method of contrast adjustment based on image’s histogram
 			-reduces color depth (shades of gray)
