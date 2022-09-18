@@ -1,1 +1,75 @@
+TEMPLATE MATCHING WITH openCV
 
+
+terms:
+	•	template matching - looking for an exact copy of an image within a larger image
+	•	corner detection - looking for corners in images
+	•	edge detection - looking to find general edges of objects
+	•	grid detection - combining both corner and edge detection to find grids in images
+	•	contour detection - detects foreground vs background images
+	⁃	allows for detection of external vs. internal contours
+	⁃	ex) grabbing eyes and smile from cartoon face
+	•	feature matching - detecting matching objects between images even if images aren’t matching
+
+*eval( ) —> converts a string to a function of the same name!
+
+
+For Image inside Image (Exact Size)
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+full = cv2.imread('DATA/sammy.jpg')
+full = cv2.cvtColor(full, cv2.COLOR_BGR2RGB)
+
+# upload template (subset of larger image, size is equal)
+face = cv2.imread('DATA/sammy_face.jpg')
+face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
+
+
+# All the 6 methods for comparison in a list
+# Note how we are using strings, later on we'll use the eval() function to convert to function
+methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR','cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED']
+
+# loop through each method for template matching
+
+for m in methods:
+    
+    # create copy of original
+    full_copy = full.copy()
+    
+    #TEMPLATE MATCHING FUNCTION
+    method = eval(m)
+    result = cv2.matchTemplate(full_copy,face,method)
+    
+    min_val,max_val,min_loc,max_loc = cv2.minMaxLoc(result)
+    
+    if method in [cv2.TM_SQDIFF,cv2.TM_SQDIFF_NORMED]:
+        top_left = min_loc #(x,y)
+        
+    else:
+        top_left = max_loc
+    
+    height,width,channels = face.shape
+    
+    bottom_right = (top_left[0] + width, top_left[1] + height)
+    
+    cv2.rectangle(full_copy,top_left,bottom_right,(255,0,0),10)
+
+    # plot it out
+     #subplot 121 means 1st of 2 side by side
+    plt.subplot(121)
+    plt.imshow(result)
+    plt.title("heatmap of the template matching")
+
+    plt.subplot(122)
+    plt.imshow(full_copy)
+    plt.title("detection of template")
+    # TITLE of both graphs together 
+    plt.suptitle(m)
+    # so a graph will show each time for the loop!         
+    plt.show()
+  #create space between graphs
+    print("\n")
+    print("\n")
