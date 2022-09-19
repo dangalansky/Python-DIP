@@ -1,0 +1,32 @@
+Edge Detection
+
+Canny Method
+—> applies gaussian filter to smooth img —> applies “non-max suppression to get rid of false responses —> track edge by hysteresis: suppress week edges and highlight strong edges
+
+for hi res images:
+- apply custom blur before method!
+
+
+1. —> read in image, RGB is not important
+
+2. —> calculate threshold values!
+
+	median_val = np.median(img)
+	# lower thresh to either 0 or 70% of the median value, whichever is greater
+	lower = int(max(0, 0.7 * median_val)
+	# upper thresh to either 255 or 130% of the median, whichever is smaller
+	upper = int(min(255, 1.3 * median_val)
+
+
+3. —> apply Canny method:
+
+	edges = cv2.Canny(img, threshold1, threshold2)
+	plt.imshow(edges)
+
+4. —> play with results!
+
+	try: blur_img = cv2.blur( img, ksize(5,5) )
+	- play with ksize here!
+
+	try: edges = cv2.Canny(blur_img, threshold1 = lower, threshold2 = upper + 50)
+		
