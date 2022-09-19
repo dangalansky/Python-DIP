@@ -1,0 +1,23 @@
+Grid Detection
+* useful in camera calibration for object recognition and object tracking
+
+1. —> read in image, color isn’t important
+
+
+2 —> call proper method
+
+for chessboard patterns
+
+ found, corners = cv.findChessboardCorners(img, (n,n))
+	# n, n represents dimensions. note: if 8x8 goes to edges, will only detect 7x7
+
+for circle-based grids
+
+ found, corners = cv.findCirclesGrid(img, (n,n), cv2.CALIB_CB_SYMMETRIC_GRID) 
+
+3. —> found: returns boolean, True if object is recognized
+	    corners: returns coordinates for where corners exist on the image
+
+4 —> draw corners directly onto image:
+
+	cv2.drawChessboardCorners(img, (n,n), corners, found)
