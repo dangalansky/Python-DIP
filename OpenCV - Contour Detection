@@ -1,0 +1,39 @@
+Contour Detection
+*contour - a curve joining all the continuous points (along the boundary), having same color or intensity
+
+-great way to separate between background and foreground
+
+1. —> read in image with 0 option for grayscale
+
+2. —> find contours using method
+	# cv2.RETR_CCOMP algorithm for internal and external contours, they are indexed separately and can be called
+	# CHAIN_APPROX_SIMPLE is working algorithm that returns both contours and hierarchy
+	# hierarchy tells where contours are
+
+	contours, hierarchy = cv2.findContours(img, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+3—> black background for external_contours to be printed upon:
+	
+	external_contours = np.zeros(img.shape)
+
+	for i in range(len(contours)):
+		
+		if hierarchy[0][i][3] == -1:
+
+			cv2.drawContours(external_contours, contours, i, 255, -1)
+			# loop through tupple of contours, if contour is external ([0][i][3] == -1), draw it on black background in solid (-1) white (255)
+
+	plt.imshow(external_contours, cmap=‘gray’)
+
+4—> black background for internal_contours to be printed upon:
+	
+	internal_contours = np.zeros(img.shape)
+
+	for i in range(len(contours)):
+		
+		if hierarchy[0][i][3] != -1:
+
+			cv2.drawContours(external_contours, contours, i, 255, -1)
+			# loop through tupple of contours, if contour is external ([0][i][3] == -1), draw it on black background in solid (-1) white (255)
+
+	plt.imshow(internal_contours, cmap=‘gray’)
