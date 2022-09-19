@@ -1,0 +1,46 @@
+Corner Detection
+
+*the junction of 2 edges, where an edge is a sudden change of image brightness
+
+Harris Corner Detection
+	
+	1. —> convert to grayscale 
+
+	2. —> convert to float!
+			img = np.float32(grayscale_img)
+
+	3. —> perform the method
+				—> blockSize = neighborhood size, 2 is standard
+				—> ksize = kernel size, 3 is standard
+				—> k = free parameter,  can be adjusted up if needed
+			
+			dst = cv2.cornerHarris(src=img, blockSize=2, ksize=3, k=0.04)
+	
+	4. —> dilate the results
+			dst = cv2.dilate(dst, None)
+
+	5. —> place results over original color image
+				—> saying: anywhere results are more than 1% of the max will be red!
+
+			color_img[dst > .01 * dst.max()] = [255,0,0]
+
+Shi-Tomasi Method
+	*superior method!
+
+	1. —> convert to grayscale
+
+	2. —> pass grayscale into method
+				-params: src, max # of corners (0=ALL), 2 				-params related to math over my head 
+				-stick with defaults!
+
+				cv2.goodFeaturesToTrack(img, maxCorners, 0.01, 10)
+
+	3. —> convert to integer values
+
+			corners = np.int0(corners)
+
+	4. —> flatten array and draw circles to mark corners
+
+			for i in corners:
+					x,y = i.ravel()
+					cv2.circle(img, (x,y), 3, (255,0,0), -1)
