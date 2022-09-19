@@ -11,7 +11,7 @@ Open Source Computer Vision
 	—> necessary conversion for cv2 if used with other libraries!
 	—> reads photos in B, G, R
 
-	•	cv2.imread(“filepath”,cv2.IMREAD_GRAYSCALE)
+	•	cv2.imread(“filepath”,cv2.IMREAD_GRAYSCALE) or (“filepath”, 0)
 	—> convert color to grayscale, abandons addtl arrays
 
 	•	cv2.resize(fix_img,(1000,400))
@@ -238,8 +238,8 @@ Thresholding
 	⁃	BINARY: val goes to max if >thresh, otherwise val = 0  
 	⁃	BINARY_INV: val = 0 if >thresh, otherwise val = max
 	⁃	TRUNC: val = threshold if >thresh, otherwise val = val
-	⁃	TRUNC_TOZERO: val = val if >thresh, otherwise val = 0
-	⁃	TRUNC_TOZERO_INV: val = 0 if > thresh, otherwise val = val
+	⁃	TOZERO: val = val if >thresh, otherwise val = 0
+	⁃	TOZERO_INV: val = 0 if > thresh, otherwise val = val
 	⁃	ret - returns threshold value
 	⁃	thresh1 - returns image
 
@@ -375,7 +375,6 @@ Histograms
 
 5) use calcHist but with created mask
 	-histogram_image = cv2.calcHist([img],[1],mask=mask,[256],[0,256])
-
 
 	Histogram Equalization 
 		* method of contrast adjustment based on image’s histogram
