@@ -1,0 +1,175 @@
+Watershed Algorithm
+* very useful for segmenting images into background and foreground
+* useful for separating objects that might otherwise be seen as a single blob
+* metaphorically, treats image like a topographic map
+* brightness of each point representing its height and finds the lines that run along the tops of ridges 
+* for grayscale images:
+	- high intensity denotes peaks and hills
+	- low intensity denotes valleys 
+
+
+1. read in image
+
+2. apply blur
+	cv2.medianBlur(img, kernelSize)
+
+3. convert to grayscale
+
+4. apply threshold
+	- use Otsu’s Method
+		- set thresh to 0, max to 255
+		- cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+	- BINARY_INV bc we want foreground objects to be white. 
+	- white = subject of the piece 
+
+5. noise removal
+	kernel = np.ones((3,3)),np.uint8)
+		
+	cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel, iterations=2)
+
+6. grab background you are sure of
+	 sure_bg = cv2.dilate(noise_removed_img, kernel, iterations=3) 
+
+7. distance transform of “noise_removed” to calculate centers
+	 cv2.distanceTransform(noise_removed_img, cv2.DIST_L2, 5)
+
+8. receive sure_foreground by applying another thresholding!
+	
+	ret, sure_fg = cv2.threshold(dist_transform, 0.7 * dist_transform.max(), 255, 0)
+		#threshold = 70% of the dist_transform.max() value
+
+9. convert sure_fg to integers from float
+	sure_fg = np.uint8(sure_fg)
+
+10. define unknown by subtracting foreground from background
+	 unknown = cv2.subtract(sure_bg, sure_fg)
+
+11. Label Markers of sure_fg
+	 - create image with sure_background, the unknown region and the marker points congregated
+
+	ret, markers = cv2.connectedComponents(sure_fg)
+	# label markers
+
+	markers = markers + 1
+	# add 1 to all labels so that sure_bg is not 0 but 1
+
+	markers[unknown==255] = 0
+	# mark region of unknown as “0”
+
+	display(markers)
+
+12. apply watershed algorithm to find markers
+
+	markers = cv2.watershed(img, markers)
+	display(markers)
+
+13. find contours (create copy) and draw on original image!
+
+	contours, hierarchy = cv2.findContours(markers.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+	- for i in range(len(contours)):
+
+		if hierarchy[0][i][3] == -1:
+			cv2.drawContours(img, contours, i, (255,0,0), 10)
+
+
+Custom Seeds with Watershed
+
+1. Read in the Image & make a copy
+
+2. Create 2 empty spaces for results to be drawn
+	
+	img.shape —> (600, 800, 3)
+	img.shape[:2] —> (600,800)
+
+marker_image = np.zeros(img.shape[:2], np.int32)
+	#this is only for the computer’s tracking purposes, user will not see!
+
+segments = np.zeros(img.shape, np.uint8)
+
+3. Create colors for markers, convert from matplotlib to openCV
+
+	https://matplotlib.org/examples/color/colormaps_reference.html
+
+	from matplotlib import cm
+
+	cm.tab10(0) —>returns (R,G,B,Alpha), we don’t need alpha
+		#cm.tab is one of many palette choices
+	
+	def create_rgb( i ):
+		x = np.array(cm.tab10( i ))[:3] * 255
+		return tuple(x)
+
+	colors = [ ] 
+
+
+	for i in range(number of colors in selected palette):
+		colors.append(create_rgb( i ))
+
+4. Set up callback function
+
+	# GLOBALS
+
+	n_markers = 10 
+	
+	current_marker = 1
+	marks_updated = False
+
+	# FUNCTION
+
+	def mouse_callback(event, x, y, flags, param):
+		global marks_updated
+
+	
+		if event == cv2.EVENT_LBUTTONDOWN:
+
+			# TRACKING FOR MARKERS
+			cv2.circle(marker_image, (x, y), 10, (current_marker), -1)
+
+			# DISPLAY ON USER IMAGE
+			cv2.circle(img_copy, (x, y), 10, colors[current_marker], -1)
+			marks_updated = True
+
+	# SET UP CALLBACK FUNCTION
+	
+	cv2.namedWindow(“window_name”)
+	cv2.setMouseCallback(“window_name”, mouse_callback)
+
+	while True:
+		
+		cv2.imshow(“segments”, segments)
+		cv2.imshow(“window_name”, img_copy)
+
+		# k = key; close everything if esc. is pressed
+		k = cv2.waitKey(1)
+
+		if k == 27:
+			break
+
+		# clear all colors and start over if ‘c’ is pressed
+		elif k == ord(‘c’):
+			img_copy = img.copy( )
+			marker_image = np.zeros(img.shape[:2], np.int32)
+			segments = np.zeros(img.shape, np.uint8)
+
+		# if a number 0-9 is pressed, index that color
+		elif k > 0 and chr(k).isdigit( ):
+		
+			current_marker = int(chr(k))
+
+		# if clicked on screen, call watershed algorithm on chosen marker
+		if marks_updated: 
+		
+			marker_image_copy = marker_image.copy( )
+			cv2.watershed(img, marker_image_copy)
+
+			segments = np.zeros(img.shape, np.uint8)
+
+			for color_index in range(n_markers):
+				segments[marker_image_copy == (color_index)] = colors [color_index]
+				# coloring the segments through a numpy call
+
+			marks_updated = False
+
+	cv2.destroyAllWindows( )
+	
