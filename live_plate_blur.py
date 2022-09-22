@@ -1,4 +1,4 @@
-# sample code from a class project. this uses a cv2 haar cascade trained for recognizing russian license plates.
+# sample code from a Pierian-Date Udemy project. this uses a cv2 haar cascade trained for recognizing russian license plates.
 # In my version, I screen recorded a video of russian dashcam footage from youtube. 
 
 import cv2
