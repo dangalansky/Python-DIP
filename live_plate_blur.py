@@ -4,7 +4,7 @@
 import cv2
 import time
 
-plate_rect = cv2.CascadeClassifier("DATA/haarcascades/haarcascade_russian_plate_number.xml")
+plate_rect = cv2.CascadeClassifier("xml filepath")
 
 def plate_rectangle(img):
     
