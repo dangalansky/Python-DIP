@@ -1,0 +1,64 @@
+Face Detection 
+*Viola-Jones Object Detection with Haar Cascades 
+	- each feature = single value
+		- obtained by: subtracting a sum of pixels under white rectangle from sum of pixels under black rectangle
+	- main feature types:
+	•	edge features: white against black in horizontal or vertical directions
+	•	line features: dark with white on sides
+	•	four rectangle features
+
+
+1. Create a classifier object and pass classifier xml file
+
+	face_cascade = cv2.CascadeClassifier(“xml filepath”)
+
+2. Create function that draws rectangle around designated feature 
+
+	def detect_face(img):
+
+		face_img = img.copy( )
+
+		face_rectangles = face_cascade.detectMultiScale(face_img, opt: scaleFactor, opt: minNeighbors)
+		# detectMultiScale returns location data in form of (x,y,w,h)
+		# scaleFactor - how much img size is reduced at each img scale; must be > 1
+		# minNeighbors - how many neighbors each candidate rectangle should have to retain it
+		
+
+		for (x, y, w, h) in face_rectangles:
+			cv2.rectangle(face_img, (x,y), (x+w,y+h),  (255), 10)
+
+		return face_img
+
+
+Face/Eye Detection with Live Video
+
+eye_cascade = cv2.CascadeClassifier(“xml filepath")
+
+def detect_eyes(img):
+    face_img = img.copy()
+    
+    eye_rects = eye_cascade.detectMultiScale(face_img, scaleFactor=1.2, minNeighbors=5)
+    
+    for (x, y, w, h) in eye_rects:
+        cv2.rectangle(face_img,(x,y),(x+w,y+h),(255),10)
+    
+    return face_img
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret,frame = cap.read(0)
+    
+    frame = detect_eyes(frame)
+    
+    cv2.imshow('Video Detect Face', frame)
+    
+    k = cv2.waitKey(1)
+    
+    if k == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+
+
