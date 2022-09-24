@@ -1,0 +1,12 @@
+Optical Flow
+* pattern of apparent motion of image objects between two consecutive frames caused by the movement of object OR camera
+
+-Lucas-Kanade
+	—> function that computes optical flow for sparse feature set
+		- only points told to track
+	—> with this method, not possible to tell for certain whether object is moving or camera
+
+-Gunner Farneback Algorithm
+	—> function used to compute dense optical flow
+		-all points in a frame
+	—> with this method all points are colored black until movement is detected 
