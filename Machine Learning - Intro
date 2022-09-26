@@ -1,0 +1,77 @@
+Machine Learning
+* method of data analysis that automates analytical model building
+* using algos that iteratively learn from data
+	-allows computers to find hidden insights without explicit programming about where to look
+
+*machine learning: give input and desired output; computer discovers process
+*before: give input and process; computer returns output
+
+*supervised learning - algos trained using labeled examples, 
+	ex) an input where the output is known
+	ex) a picture with a category label such as ‘cat’ or ‘dog’
+
+The Machine Learning Process
+
+1. Data Acquisition
+
+2. Data Cleaning
+	- format images (Keras)
+	
+3. Split Data into Training Data (70%) and Test Data (30%)
+	-Training: apply model on training data and have computer learn	- Build and fit model on this training data
+
+4. Model Testing
+	- see how well model performs using Test Data
+	- predict using the test data
+	- adjust params and return to step 3 until model performs correctly
+
+5. Model Deployment
+	-use data outside of original dataset
+
+Classification Metrics
+* outcome can either be correct or incorrect
+
+key metrics:
+
+	- Accuracy
+		* number of correct predictions made by the model / total number of predictions
+		- great metric for balanced classes
+			*meaning: close to equal amounts of each class (dogs vs. cats)
+
+	
+	- Recall
+		*  # of true positives / (# of true positives / # of false negatives)
+		- ability of a model to find all the relevant cases within dataset
+
+	- Precision
+		* # of true positives / (# of true positives + # of false positives)
+		- ability of a model to identify only the relevant data points
+		- expresses the proportion of the data points our model says was relevant to those that were relevant
+
+
+	- F1-Score
+		- F1 = 2 * ( (precision * recall) / (precision + recall) )
+			* harmonic mean over simple average
+				- unlike simple average, it punishes extreme values
+		- harmonic mean of precision and recall
+		- combine and report relationship between recall and precision
+
+
+Confusion Matrix
+
+	      Predicted:   Predicted:                  TP = TRUE POSITIVE
+n = 165       NO               YES                       TN = TRUE NEGATIVE
+          								     FP = FALSE POSITIVE
+Actual:  								     FN = FALSE NEGATIVE
+   NO        TN=50         FP=100
+
+Actual:
+  YES        FN=5          TP=100
+
+so…
+	accuracy = 150/165 = 90.9%
+	error rate = 15/165 = 0.9%
+	recall = 100 / (100 / 5) = 5
+	precision = 100 / (100 + 10) = 90.9
+	f-1 score = 2 * ( (5 * 90.9) / (95.9) = 9.48
+
