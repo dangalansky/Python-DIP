@@ -1,0 +1,96 @@
+Keras Library: Machine Learning
+
+
+For Numerical Datasets
+* values extracted from images
+
+1) import
+
+	import numpy as np
+	from numpy import genfromtxt
+
+2) get data as csv
+
+	data = genfromtxt(“filepath”, delimiter=',')
+
+3) labels indicated by last column in dataset (in this case 5th column)
+
+	labels = data[:, 4]
+		# says we want every row but only the 5th column
+
+4) features indicated by everything except last columns
+
+	features = data[:, 0:4]
+		# says we want every row and column except for the 5th
+
+5) by convention, X indicates features, y indicates labels
+
+	X = features
+	y = labels
+
+6) split data between training set and test set
+
+	from sklearn.model_selection import train_test_split
+		#train_test_split splits up features and labels into test and training set + randomizes the shuffle
+
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+7) scale data to fall within a certain range, this helps the neural network perform better
+
+	from sklearn.preprocessing import MinMaxScaler
+
+	scaler_object = MinMaxScaler()
+		# finds min and max value, transforms array to fit
+	scaler_object.fit(X_train)
+		# fit object to training data; don’t pass test data, THATS CHEATING!
+
+8) transform data
+
+	scaled_X_train = scaler_object.transform(X_train)
+	scaled_X_test = scaler_object.transform(X_test)
+
+9) build neural network
+
+	from keras.models import Sequential
+	from keras.layers import Dense
+
+	model = Sequential()
+	# add in layers
+
+	# 1 - Input Layer, expect 4 features (4 columns), input dimensions, relu = rectified linear unit
+	model.add(Dense(4,input_dim=4,activation='relu'))
+
+	# 2 - Hidden Layer, here is where you can play with neurons(too large or too small = bad results; 2x is great!)
+	# no need for input dimension bc only 1 input
+	model.add(Dense(8,activation='relu'))
+
+	# 3 - Output Layer, sigmoid bc output will be between 0 and 1
+	model.add(Dense(1, activation='sigmoid'))
+
+10) compile the model
+
+	model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
+	
+11) fit the model to data (train the model)
+
+	model.fit(scaled_X_train, y_train, epochs=50, verbose=2)
+
+13) predict on new unseen data
+
+	from sklearn.metrics import confusion_matrix, classification_report
+
+	predictions = (model.predict(X_test) > 0.5).astype("int32")
+		# predict returns class probability instead of the class number so we have to perform the conversion manually
+
+	confusion_matrix(y_test, predictions)
+		# create confusion matrix with data; incorrect responses in upper right and lower left corners (?)
+
+	print(classification_report(y_test,predictions))
+		# get metric data
+
+	model.save(“name_of_model.h5”)
+		# save model
+
+	from keras.models import load_model
+		# load model
+	new_model = load_model('name_of_model.h5')
