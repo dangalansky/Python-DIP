@@ -1,0 +1,93 @@
+MeanShift Tracking
+
+for clusters of points:
+	-direction of closest cluster centroid determined by where most points nearby are at
+		*essentially calculating a weighted mean
+	- at each iteration, each point moves closer to cluster center
+	- will eventually reach convergence into single points
+	- wont always detect what we see as the reasonable amount of clusters
+
+
+Code:
+
+# capture video
+cap = cv2.VideoCapture(0)
+
+# grab frame data
+ret, frame = cap.read()
+
+# set up initial tracking window with face tracking
+# face will be identified during first frame, meanshift will track those pixels
+face_cascade = cv2.CascadeClassifier("DATA/haarcascades/haarcascade_frontalface_default.xml")
+
+# face_rects returns numpy arrays of all coordinates of face detections so...
+face_rects = face_cascade.detectMultiScale(frame)
+
+# just want first face
+(face_x, face_y, w, h) = tuple(face_rects[0])
+track_window = (face_x, face_y, w, h)
+
+# set up ROI for tracking
+roi = frame[face_y:face_y + h, face_x:face_x + w]
+
+# set up HSV color mapping
+hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+
+# find histogram to back project target on each frame in order to calc meanShift
+roi_hist = cv2.calcHist([hsv_roi],[0],None,[180],[0,180])
+
+# normalize histogram array values
+cv2.normalize(roi_hist,roi_hist,0,255,cv2.NORM_MINMAX)
+
+# set up termination criteria
+term_crit = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
+
+while True:
+    
+    ret, frame = cap.read()
+    
+    if ret == True:
+        
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        
+        # calc back projection based on hsv 
+        dest = cv2.calcBackProject([hsv],[0],roi_hist,[0,180],1)
+        
+        # where meanShift is updated and applied. pass in destination, previous tracking window, and the termination criteria     
+        ret, track_window = cv2.meanShift(dest, track_window, term_crit)
+        
+        # draw new rectangle on image based on where new tracking_window has been updated
+        x,y,w,h = track_window
+        img2 = cv2.rectangle(frame, (x,y), (x+w, y+h), (0,0,255), 5)
+        
+        cv2.imshow("img", img2)
+        
+        k = cv2.waitKey(1)
+        if k == 27:
+            break
+            
+    else:
+        break
+        
+cap.release()
+cv2.destroyAllWindows()
+
+
+CamShift Tracking
+*continuously adaptive meanshift, window constantly resizes to object 
+
+- 1st apply meanshift and perform iterations until convergence
+- then: calculate a new ROI by updated size of window and best orientation is calculated 
+
+Code:
+
+between calcBackProject and imshow insert:
+
+	ret, track_window = cv2.CamShift(dest, track_window, term_crit)
+        
+        pts = cv2.boxPoints(ret)
+        # convert from float to integer         
+        pts = np.int0(pts)
+
+        img2 = cv2.polylines(frame,[pts],True,(0,0,255),5)
+        
