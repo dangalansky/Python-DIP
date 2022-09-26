@@ -1,0 +1,133 @@
+Tracking APIs
+
+Boosting Tracker
+	-based off AdaBoost algo (same as HAAR Cascade)
+	-evaluation occurs across multiple frames
+	Pros:
+		- very well known and studied
+	Cons:
+		- doesn’t known when tracking has failed
+		- could keep tracking “face” when face has left frame
+		- much better techniques available
+
+MIL Tracker
+	- multiple instance learning 
+	- improvement of Boosting
+	- instead considers a neighborhood of points to create multiple instances
+	Pros:
+		- good performance
+		- doesn’t drift as much as Boosting
+	Cons:
+		- tracking failure may not be reported back
+		- can’t recover from full obstruction 
+
+KCF Tracker 
+	- Kernelized Correlation Filters
+	- improvement of MIL
+	- exploits the fact that many points will overlap
+	Pros:
+		- more accurate and faster tracking 
+		- great FIRST CHOICE
+	Cons:
+		- can’t recover from full obstruction 
+
+TLD Tracker
+	- Tracking, Learning and Detection
+	- follows object from frame to frame
+	- localizes all appearances that have been observed so far and corrects the tracker, if necessary
+	- learning estimates errors and updates tracker to avoid in the future
+	Pros:
+		- good at tracking, even with obstructions
+		- tracks well at fast moving objects 
+			* fast moving car may seem to be larger as it gets closer
+			* TLD can deal with it 
+	Cons:
+		- may provide many false positives 
+
+MedianFlow Tracker
+	- tracks the object in both forward  and backward directions in time
+	- measures the discrepancies between these 2 trajectories 
+	Pros:
+		- very good at reporting failures
+		- works well with predictable motion
+	Cons:
+		- fails under fast moving objects 
+	
+Code:
+
+import cv2
+import numpy
+
+def ask_for_tracker():
+    print("Which API would you like to use?")
+    print("0: BOOSTING")
+    print("1: MIL")
+    print("2: KCF")
+    print("3: TLD")
+    print("4: MedianFlow")
+    choice = input("Enter here:")
+                  
+    if choice == "0":
+        tracker = cv2.legacy.TrackerBoosting_create()
+   
+    if choice == "1":
+        tracker = cv2.TrackerMIL_create()
+   
+    if choice == "2":
+        tracker = cv2.TrackerKCF_create()
+    
+    if choice == "3":
+        tracker = cv2.legacy.TrackerTLD_create()
+       
+    if choice == "4":
+        tracker = cv2.legacy.TrackerMedianFlow_create()
+                   
+    return tracker
+        
+tracker = ask_for_tracker()
+                   
+tracker_name = str(tracker).split()[0][1:]
+                   
+cap = cv2.VideoCapture(0)
+                   
+ret, frame = cap.read()
+
+# the magic! allows for manual drag and select of ROI; fromCenter = False
+roi = cv2.selectROI(frame, False)
+                   
+# first frame still, to initialize with bounding box
+ret = tracker.init(frame, roi)
+                   
+while True:
+    # read new frame     
+    ret, frame = cap.read()
+   
+    # update tracker, success == false if object leaves field of view
+    success, roi = tracker.update(frame)
+                   
+    # roi is a tuple of 4 floats, convert to integers
+    (x,y,w,h) = tuple(map(int,roi))
+
+    # draw rectangle as tracker moves
+    if success: 
+        pt1 = (x,y)
+        pt2 = (x+w, y+h)
+        cv2.rectangle(frame, pt1, pt2, (0,255,0), 3)
+
+    # tracking failure
+    else:
+        cv2.putText(frame, "Failure to Detect Tracking", (100,200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 3)
+
+    # display tracker name on frame
+    cv2.putText(frame, tracker_name, (20,400), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 3)
+                   
+    # display result                    
+    cv2.imshow(tracker_name, frame)
+
+    k = cv2.waitKey(1)
+    if k == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+                
