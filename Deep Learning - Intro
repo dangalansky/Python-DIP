@@ -1,0 +1,75 @@
+Deep Learning
+
+* Artificial Neural Networks (ANN) —> have a basis in biology, mimics neurons
+
+* Perceptron - artificial neuron
+
+Biological Neuron
+	-Dendrites —> Body —> Axon
+		* dendrites feed into body of cell
+		* electrical signal passes through dendrites to the body of cell
+		* single output passed through axon into another neuron
+
+Perceptron
+	- input 0, input 1—> activation function —> 1 output
+
+		* inputs have values of features
+
+		* values are multiplied by weight (n)
+			- initially n = random
+
+		* result of value multiplied by weight passed into activation function 
+
+		* output is result of activation function  
+
+but…
+		* what if input = 0?
+			-weight would have no effect!
+
+		* enter: the bias
+
+		in this case: bias = +1
+
+	z = wx + b
+		w = weight
+		x = inputs
+		b = bias
+
+
+Neural Networks
+
+*Input Layers - real values from data
+
+*Hidden Layers - layers in between input and output
+			      - 3 or more == deep network
+
+*Output Layer - Final estimate of the output 
+
+
+Cost Functions
+* the way we evaluate performance of perceptrons; how far off are we from expected values
+* measurement of error
+
+y = true value
+a = neuron’s prediction 
+
+* Quadratic Cost —> larger errors are more prominent due to squaring
+			      —> will cause slowdown in learning speed 
+
+* Cross Entropy —> allows for faster learning
+			     —> larger the difference between a and y, the faster the neuron learns 
+
+
+
+Gradient Descent & Backpropagation 
+
+*Gradient Descent - optimization algorithm for finding the minimum of a function 
+						* to find min, we take steps proportional to the negative of the gradient 
+				    - we get the parameter value to choose minimal Cost value
+
+* Backpropagation - calculates error contribution of each neuron after a batch of data is processed 
+				    - works by calculating error at output and then distributing back through the network layers
+
+
+
+
