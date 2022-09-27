@@ -1,0 +1,73 @@
+Convolutional Neural Networks (CNN)
+
+- for raw image data
+- also basic in biological research
+- discovery that neurons in the visual cortex only perceive a smaller subsection of image person is viewing
+	- they later overlap to create full image
+
+Flow
+Input —> Convolution —> Subsampling —> Repeat(?) —> Dense Neural Network
+
+                             ^ Feature Extraction ^                               ^ Classification ^
+
+
+* Tensors - N-Dimensional Arrays
+
+	- Scalar —> single digits, either integer or floating point
+		ex) 3
+	- Vector —> one dimensional array of scalar numbers
+		ex) [3,4,5]
+	-Matrix —>2 dimensional list of vectors
+		ex) [ [3,4], [5,6], [7,8] ]
+	- Tensor —> higher dimensional arrays
+		ex) [ [ [1,2], [3,4], [5,6], [7,8] ] ]
+
+ 	—> make it very convenient to feed sets of images into our model
+		- (I,H,W,C)
+		- image, height, width, channels (1 or 3)
+
+* DNN vs. CNN
+
+- Densely Connected Layer
+	—> every neuron in one layer is connected to every neuron in the next
+
+- Convolutional Layer
+	—> every neuron is connected to a lesser number of neurons in the next layer
+	—> for images, this saves tons of computational power
+			- pixels nearby each other are much more correlated
+			- thus,  units only connected to nearby units aids in invariance
+	—> each layer looks at an increasingly larger part of the image
+
+*padding - as we get towards the edge of an image, there may not be input neurons from the input data
+		—> we add a “padding” of zeros around the edge of the image
+
+*stride - how many pixels the filter shifts by after each iteration
+
+filters
+* commonly visualized as grids
+	- like a kernel
+- grid is filled with “weights” or numbers that are multiplied by the input values from the image array
+	- new grid is summed and that becomes an output value of the convoluted image
+
+Subsampling (Pooling)
+* pooling layers reduces the memory use and comp load, reduces number of parameters
+
+1. kernel (commonly 2 x 2) is applied over image array
+2. max value in grid is evaluated
+3. max value is only value to make it to next layer
+4. a lot of information is removed
+	ex) kernel of 2x2, stride of 2 = 75% of input data removed 
+
+Dropout
+* form of regularization to prevent “overfitting”
+- during training, units are randomly dropped, along with their connections 
+- helps units avoid co-adapting too much to any particular training set
+
+
+
+
+
+
+
+
+
