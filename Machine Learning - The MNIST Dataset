@@ -1,0 +1,18 @@
+MNIST Dataset
+
+- datasets organized into 4D arrays
+	- (number of samples, x, y, channels)
+	- (60,000, 28, 28, 1)
+- 60,000 training images and 10,000 test images
+- contains handwritten single digits from 0-9
+- single digit image can be represented as an array
+- 28 x 28
+- normalized to keep all values between 0 and 1
+	- helps deep learning happen so much faster
+- 0 represents white, 1 represents black
+
+* one-hot encoding - single array for each image, instead of categorical labels: “one”, “two” etc…
+	—> label is represented based of index position in array
+			ex) 4 - [0,0,0,0,1,0,0,0,0,0]
+	—> label for MNIST dataset = large 2D array
+			ex) (600000, 10) 
