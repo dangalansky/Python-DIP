@@ -1,7 +1,7 @@
 Keras Library: Machine Learning
 
 
-For Numerical Datasets
+For Pre-Extracted Datasets: Dense Neural Networks
 * values extracted from images
 
 1) import
@@ -94,3 +94,99 @@ For Numerical Datasets
 	from keras.models import load_model
 		# load model
 	new_model = load_model('name_of_model.h5')
+
+
+For Raw Image Datasets: Convolutional Neural Networks
+
+1) import 
+
+	from keras.datasets import mnist
+	import matplotlib.pyplot as plt
+	import numpy as np
+
+2) load data (in this case MNIST dataset)
+
+	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	# note: these dataset shapes are lacking a color channel atm
+
+3) test data by grabbing a single image and display using matplotlib
+
+	single_img = x_train[0]
+
+	plt.imshow(single_img, cmap = “gray_r”)
+	# note: add “_r” to end of cmap to reverse colors
+
+4) convert labels to “one-hot encoding”
+
+	from keras.utils.np_utils import to_categorical
+
+	y_cat_test = to_categorical(y_test, 10)
+	y_cat_train = to_categorical(y_train, 10)
+	# 2nd param in to_categorical = number of possible classifications 
+
+5) normalize values to be between 1 and 0
+
+	x_train = x_train / x_train.max()
+	x_test = x_test / x_test.max()
+	# note: this is a basic way to do it. could also use .normalize()
+
+6) reshape to include 4D color channel 
+
+	x_train = x_train.reshape(60000, 28, 28, 1)
+	x_test = x_test.reshape(10000, 28, 28, 1)
+
+7) import materials for model, layers 
+
+	from keras.models import Sequential
+	from keras.layers import Dense, Conv2D, MaxPool2D, Flatten 
+
+8) build model
+
+	model = Sequential()
+	# create Sequential Object
+
+	model.add(Conv2D( filters=32, kernel_size=(4,4), input_shape=(28,28,1), activation='relu') )
+	# Convolutional Layer (32 is good for simple, need more for more complex images)
+
+	model.add(MaxPool2D(pool_size=(2,2) )
+	# Pooling/Subsampling Layer
+	# Read latest publications for best pool sizes
+
+	model.add(Flatten( ) )
+	# 2D—> 1D so Dense layer can understand
+
+	model.add(Dense(128,activation='relu') ) 
+	# Dense Layer
+	# 128 neurons, encouraged to play with this number
+	# common to increase by 2x (128, 256, 512..etc)
+
+	model.add(Dense(10,activation='softmax'))
+	# Output layer, classifier
+	# output is locked in at 10
+
+
+	model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'] )
+	# Compile
+
+9) get summary of layers, output shape and params
+
+	model.summary()
+
+10) train model 
+
+	model.fit(x_train, y_cat_train, epochs=2)
+
+11) evaluate model 
+
+	model.evaluate(x_test, y_cat_test)
+
+12) predict on new unseen data 
+
+	from sklearn.metrics import classification_report
+
+	predictions = np.argmax(model.predict(x_test), axis=-1)
+	# for multi-class data must use ^
+	# note: predictions results based on labels in orig. format (not one-hot encoded)
+
+	print(classification_report(y_test, predictions))
+	# thus, we pass in original label format for report
