@@ -1,0 +1,170 @@
+Training CNN Models With Custom Image Datasets
+
+1) Format files:
+
+	Working Directory —> Test and Train Directories —> Folders as Classes 
+
+2) Import Library
+
+	from keras.preprocessing.image import ImageDataGenerator
+
+3) Image Data Generator creates random shifts to create better learning. Set Params…
+
+	image_gen = ImageDataGenerator(rotation_range = 30,
+                              width_shift_range = 0.1,
+                              height_shift_range = 0.1,
+                              rescale = 1/255,
+                              shear_range = 0.2,
+                              zoom_range = 0.2,
+                              horizontal_flip = True,
+                              fill_mode = 'nearest'
+                              )
+
+
+		# rotation_range: random rotation, don't go too crazy
+		# width_shift_range: shift pic width by maximum percentage (between 0 and 1)
+		# height_shift_range : same but for height
+		# rescale: normalization; 1/255 = dividing by 255
+		# shear_range: how much is allowed to be cropped; percentage (between 0 and 1)
+		# zoom_range:  max allowed to zoom in; percentage (between 0 and 1)
+		# horizontal_flip: boolean; set to True
+		# fill_mode: pixels will be lost as images are processed, how to make them up? (set to 'nearest')
+
+
+	—> you can test generator on single images to see:
+		plt.imshow( image_gen.random_transform(img) )
+
+4) Pass directory into image data generator 
+
+	image_gen.flow_from_directory(“directory filepath”)
+
+5) Import libraries for model and layers
+
+	from keras.models import Sequential
+	from keras.layers import Activation, Dropout, Flatten, Conv2D, MaxPooling2D, Dense
+
+6) Bc we are working with a library of random images, we must normalize the img.shape
+
+	input_shape = (150, 150, 3)
+
+7) Now build model, inserting this variable into each convolution step
+
+	model = Sequential()
+
+	model.add(Conv2D(filters=32, kernel_size=(3,3), input_shape=input_shape, activation='relu' ))
+	model.add(MaxPooling2D(pool_size=(2,2) ))
+	# now we are going to repeat this 2 more times but we will increase the filter size x2
+
+	model.add(Conv2D(filters=64, kernel_size=(3,3), input_shape=input_shape, activation='relu' ))
+	model.add(MaxPooling2D(pool_size=(2,2) ))
+
+	model.add(Conv2D(filters=64, kernel_size=(3,3), input_shape=input_shape, activation='relu' ))
+	model.add(MaxPooling2D(pool_size=(2,2) ))
+
+	model.add(Flatten( ) )
+
+	model.add(Dense(128))
+	model.add(Activation('relu'))
+	# this is the same as adding in activation to the Dense layer
+
+	model.add(Dropout(0.5))
+	# helps prevent overfitting by randomly turning off set number of neurons (50% in this case)
+
+	model.add(Dense(1))
+	#1 bc its a binary class (either 0 or 1; cat or dog)
+	model.add(Activation('sigmoid'))
+
+	model.compile(loss="binary_crossentropy", optimizer='adam', metrics=['accuracy'] )
+
+8) Receive Summary 
+
+	model.summary( )
+
+9) Format training/test sets
+
+	batch_size = 16
+	# 16 is a good start, too high will take a long time 
+
+	train_image_gen = image_gen.flow_from_directory( ‘directory/train', 
+                                                  target_size = input_shape[:2],
+                                                  batch_size = batch_size,
+                                                  class_mode = 'binary')
+
+	test_image_gen = image_gen.flow_from_directory( ‘directory/test’, 
+                                                  target_size = input_shape[:2],
+                                                  batch_size = batch_size,
+                                                  class_mode = 'binary')
+
+10) how tell what index belongs to which class…
+
+	train_image_gen.class_indices
+
+11) training your model
+
+	
+	results = model.fit_generator(train_image_gen, 
+								epochs = 1, 
+								steps_per_epoch = 150,
+                             				validation_data = test_image_gen, 
+								validation_steps = 12)
+
+		# steps per epoch defines how large an epoch is
+		# with batch size in account, epoch=1, steps_per_epoch at 150 means you're grabbing patches of 16 150 times
+		# all to save cpu memory
+		# validation steps similar to batch size per epoch except related to validation data (test vs. training)
+
+12) if we want warnings turned off…
+
+	import warnings
+	warnings.filterwarnings('ignore')
+
+13) evaluate results…
+
+	results.history[‘accuracy’]
+
+14) now test unseen data…
+
+	import tensorflow.keras.utils as tf_keras
+	from tensorflow.keras.utils import load_img, img_to_array
+
+15) load image
+	
+	img = (“filepath”)
+	img = tf_keras.load_img(img, target_size = (150,150))
+
+16) convert to array 
+
+	img = tf_keras.img_to_array(img)
+
+17) must convert img.shape into 4D
+
+	import numpy as np
+	img = np.expand_dims(img, axis=0)
+
+	 # neural network must think this is a batch of 1 image
+	 # we need: (1, 150, 150, 3)
+	 # axis number refers to position in tuple dimension will be add
+	
+18) all values between 0 and 1
+
+	img = img / 255
+
+19) Test image:
+
+	- for binary classes: 
+
+		(new_model.predict(img) > 0.5).astype("int32")
+
+	- for multiclass:
+
+		np.argmax(model.predict(x_test), axis=-1)
+
+	—> will return index, refer to step 10
+
+20) how sure was the computer? 
+
+	model.predict(img)
+
+
+21) refine model if needed! 
+	
