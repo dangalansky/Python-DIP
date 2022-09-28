@@ -73,7 +73,9 @@ For Pre-Extracted Datasets: Dense Neural Networks
 	
 11) fit the model to data (train the model)
 
-	model.fit(scaled_X_train, y_train, epochs=50, verbose=2)
+	model.fit(scaled_X_train, y_train, epochs=50, verbose=0)
+	# verbose: 0 = silent, 1=progress bar, 2 = one line per epoch 
+
 
 13) predict on new unseen data
 
