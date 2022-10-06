@@ -1,0 +1,166 @@
+Object Detection: Tensorflow + Python
+
+documentation: https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/index.html
+
+steps involved:
+
+	- prepare images, using label-studio package
+
+	- train deep learning model using Tensorflow Object Detection API
+		-download pre-trained model and use transfer learning to train faster 
+
+	- make real time detections using OpenCV + Python 
+
+Setting Up Label Studio
+	1. in terminal: pip install label-studio
+
+	2. in terminal: label-studio start
+
+	3. directory should end up with 2x the files
+			
+		- images	
+		- annotations as .xml files
+
+	4. split into test and train folders
+
+		-make sure to include both files
+
+Steps
+
+	0. Setup Paths
+		WORKSPACE_PATH = “Tensorflow/workspace”
+		SCRIPTS_PATH = “Tensorflow/scripts”
+		APIMODEL_PATH = “Tensorflow/models”
+		ANNOTATION_PATH = WORKSPACE_PATH + “/annotations”
+		IMAGE_PATH = WORKSPACE_PATH + “/images”
+		MODEL_PATH = WORKSPACE_PATH + “/models”
+ 		PRETRAINED_MODEL_PATH = WORKSPACE_PATH + “/pre-trained-models”
+		CONFIG_PATH = MODEL_PATH + “/my_ssd_mobnet/pipeline.config”
+		CHECKPOINT_PATH = MODEL_PATH + “/my_ssd_mobnet”
+
+	1. Create Label Map
+		- representations of all the different objects contained in the images
+
+		labels = [{’name”: Hello”, “id”: 1}, {“name”: Thanks”, “id”: 2}]
+
+		label map must be in format of pbtxt
+
+		with open(ANNOTATION_PATH + "/label_map.pbtxt", 'w') as file:
+    			for label in labels:
+        				file.write("item{\n")
+        				file.write(f"\tname: '{label['name']}'\n")
+        				file.write(f"\tid: {label['id']}\n")
+        				file.write("}\n")
+                   
+
+	2. Create TF records
+		-representation of our data used by Object Detection API
+		
+		- must use generate_tfrecord.py script —> official script for tensor flow object detection 
+		
+		*gets data in correct format!!!!
+
+		!python {SCRIPTS_PATH + "/generate_tfrecord.py"} -x {IMAGE_PATH + "/train" } -l {ANNOTATION_PATH + "/label_map.pbtxt"} -o {ANNOTATION_PATH + "/train.record"}
+		!python {SCRIPTS_PATH + "/generate_tfrecord.py"} -x {IMAGE_PATH + "/test" } -l {ANNOTATION_PATH + "/label_map.pbtxt"} -o {ANNOTATION_PATH + "/test.record"}
+		
+		*if error: module 'tensorflow' has no attribute 'gfile' —> find label_map_util.py —> replace: tf.gfile.GFile —> with: tf.gfile.io.GFile	
+	
+		*if error: incompatible constructor arguments —> open generate_tfrecord.py 
+			—> replace: label_map_dict = label_map_util.get_label_map_dict(label_map) —> with: label_map_dict = label_map_util.get_label_map_dict(args.labels_path)
+
+		* go to tensorflow —> workspace —> annotations
+			check to see if we have labelmap, test and train files added!
+
+
+	3. Download Pre-Trained TF Models
+
+		in terminal from tensorflow dir: git clone https://github.com/tensorflow/models
+
+	4. Copy Model Config to Training Folder
+
+		Get Model/Config
+		For more models: https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md
+		
+		- accuracy —> CoCo MAP (main average precision): search highest
+		- speed —> Speed(ms) : search lowest
+
+		* must “untar” to use. paste in model URL into the following:
+			*untar—> uncompress, .tar & .tar.gz are compression formats
+
+		#wget.download('http://download.tensorflow.org/models/object_detection/tf2/20200711/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8.tar.gz')
+		#!mv ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8.tar.gz {PRETRAINED_MODEL_PATH}
+		#!cd {PRETRAINED_MODEL_PATH} && tar -zxvf ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8.tar.gz
+
+
+		* provided model: SSD MobileNet V2 FPNLite 320x320
+
+		Copy Config To Training Folder
+
+		* representation of the model
+		1. find: pipeline.config
+		2. copy into models folder 
+
+		CUSTOM_MODEL_NAME = 'my_ssd_mobnet' 
+		!mkdir {'Tensorflow/workspace/models/‘+CUSTOM_MODEL_NAME}
+		!cp {PRETRAINED_MODEL_PATH+'/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8/pipeline.config'} {MODEL_PATH+'/'+CUSTOM_MODEL_NAME}
+
+		
+
+		
+	5. Update Config for Transfer Learning
+		
+		Import Dependencies
+
+		import tensorflow as tf
+		from object_detection.utils import config_util
+		from object_detection.protos import pipeline_pb2
+		from google.protobuf import text_format
+
+		Define Config Path + Tap into it
+		
+		CONFIG_PATH = MODEL_PATH+'/'+CUSTOM_MODEL_NAME+'/pipeline.config'
+		config = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
+
+		*if ParseError —> visit pipeline.config copy —> remove fine_tune_checkpoint_version—> line 172
+
+		type: config to pull up results
+
+		
+	
+		
+
+		update: fine_tune_checkpoint —> 165 —> where we want model to start training from
+		
+
+	6. Train Model
+
+	7. Load Train Model from Checkpoint
+
+	8. Detect in Real-Time
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ASL Project Tutorial Notes
+
+in terminal: git clone https://github.com/nicknochnack/RealTimeObjectDetection
