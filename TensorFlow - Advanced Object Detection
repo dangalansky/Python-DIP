@@ -74,14 +74,16 @@ Steps
 
 	3. Download Pre-Trained TF Models
 
-		in terminal from tensorflow dir: git clone https://github.com/tensorflow/models
+		in terminal (from tensorflow dir): git clone https://github.com/tensorflow/models
+
+		or in IDE: !cd Tensorflow && git clone https://github.com/tensorflow/models
 
 	4. Copy Model Config to Training Folder
 
-		Get Model/Config
+		1. Get Model/Config
 		For more models: https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md
 		
-		- accuracy —> CoCo MAP (main average precision): search highest
+		- accuracy —> CoCo MAP (main average precision score): search highest
 		- speed —> Speed(ms) : search lowest
 
 		* must “untar” to use. paste in model URL into the following:
@@ -93,15 +95,19 @@ Steps
 
 
 		* provided model: SSD MobileNet V2 FPNLite 320x320
+			-optimized for speed!
 
-		Copy Config To Training Folder
+		2. Copy Config To Training Folder
 
 		* representation of the model
 		1. find: pipeline.config
 		2. copy into models folder 
 
+			# create directory name
 		CUSTOM_MODEL_NAME = 'my_ssd_mobnet' 
+			# create directory
 		!mkdir {'Tensorflow/workspace/models/‘+CUSTOM_MODEL_NAME}
+			# copy config, place in created folder
 		!cp {PRETRAINED_MODEL_PATH+'/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8/pipeline.config'} {MODEL_PATH+'/'+CUSTOM_MODEL_NAME}
 
 		
@@ -109,14 +115,14 @@ Steps
 		
 	5. Update Config for Transfer Learning
 		
-		Import Dependencies
+		1. Import Dependencies
 
 		import tensorflow as tf
 		from object_detection.utils import config_util
 		from object_detection.protos import pipeline_pb2
 		from google.protobuf import text_format
 
-		Define Config Path + Tap into it
+		2.Define Config Path + Tap into it
 		
 		CONFIG_PATH = MODEL_PATH+'/'+CUSTOM_MODEL_NAME+'/pipeline.config'
 		config = config_util.get_configs_from_pipeline_file(CONFIG_PATH)
@@ -125,16 +131,46 @@ Steps
 
 		type: config to pull up results
 
-		
-	
-		
+		3. Create A Config Shell
 
-		update: fine_tune_checkpoint —> 165 —> where we want model to start training from
+		pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
+		with tf.io.gfile.GFile(CONFIG_PATH, 'r') as file:
+    			proto_str = file.read()
+    			text_format.Merge(proto_str, pipeline_config)
+	
+		pipeline_config.model.ssd.num_classes = 5
+		pipeline_config.train_config.batch_size = 4
+
+		# this is where we want our model to start from, transfer learning
+		pipeline_config.train_config.fine_tune_checkpoint = PRETRAINED_MODEL_PATH + 'ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8/checkpoint/ckpt-0'
+
+		# we want a detection-type model
+		pipeline_config.train_config.fine_tune_checkpoint_type = 'detection'
+
+		# where our label_map path is
+		pipeline_config.train_input_reader.label_map_path = ANNOTATION_PATH + '/label_map.pbtxt'
+
+		# where our tf_records are
+		pipeline_config.train_input_reader.tf_record_input_reader.input_path[:] = [ANNOTATION_PATH + '/train.record']
+
+		# for the testing component: where our label_map and tf_records are located
+		pipeline_config.eval_input_reader[0].label_map_path = ANNOTATION_PATH + '/label_map.pbtxt'
+		pipeline_config.eval_input_reader[0].tf_record_input_reader.input_path[:] = [ANNOTATION_PATH + '/train.record']
+
+
+		4. Write Shell to Main Config
 		
+		config_text = text_format.MessageToString(pipeline_config)
+			with tf.io.gfile.GFile(CONFIG_PATH, 'wb') as file:
+   			 file.write(config_text)
+
+				*wb = ‘write binary’
 
 	6. Train Model
 
+		in terminal cd to training_demo: 
+		python model_main_tf2.py --model_dir=models/my_ssd_resnet50_v1_fpn --pipeline_config_path=models/my_ssd_resnet50_v1_fpn/pipeline.config
+		
 	7. Load Train Model from Checkpoint
 
 	8. Detect in Real-Time
-
