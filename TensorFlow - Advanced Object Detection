@@ -169,8 +169,11 @@ Steps
 	6. Train Model
 
 		in terminal cd to training_demo: 
-		python model_main_tf2.py --model_dir=models/my_ssd_resnet50_v1_fpn --pipeline_config_path=models/my_ssd_resnet50_v1_fpn/pipeline.config
+		python model_main_tf2.py --model_dir=models/my_ssd_mobnet --pipeline_config_path=models/my_ssd_mobnet/pipeline.config
 		
 	7. Load Train Model from Checkpoint
 
 	8. Detect in Real-Time
+
+clear
+
