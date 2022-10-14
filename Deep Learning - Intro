@@ -69,7 +69,3 @@ Gradient Descent & Backpropagation
 
 * Backpropagation - calculates error contribution of each neuron after a batch of data is processed 
 				    - works by calculating error at output and then distributing back through the network layers
-
-
-
-
