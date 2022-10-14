@@ -19,8 +19,7 @@ Training CNN Models With Custom Image Datasets
                               horizontal_flip = True,
                               fill_mode = 'nearest'
                               )
-
-
+			      
 		# rotation_range: random rotation, don't go too crazy
 		# width_shift_range: shift pic width by maximum percentage (between 0 and 1)
 		# height_shift_range : same but for height
@@ -164,7 +163,6 @@ Training CNN Models With Custom Image Datasets
 20) how sure was the computer? 
 
 	model.predict(img)
-
 
 21) refine model if needed! 
 	
